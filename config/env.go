@@ -25,8 +25,8 @@ func initConfig() Config {
 		Port:       getEnv("PORT", "8080"),
 		DBUser:     getEnv("DB_USER", "root"),
 		DBPassword: getEnv("DB_PASSWORD", "root"),
-		DBAddress:  fmt.Sprintf("%s:%s", getEnv("DB_HOST", "localhost"), getEnv("DB_PORT", "3306")),
-		DBName:     getEnv("DB_NAME", "deviceDB"),
+		DBAddress:  fmt.Sprintf("%s:%s", getEnv("DB_HOST", "localhost"), getEnv("DB_PORT", "3333")),
+		DBName:     getEnv("DB_NAME", "device_db"),
 	}
 
 }

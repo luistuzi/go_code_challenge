@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"go_code_challenge/cmd/api"
 	"go_code_challenge/config"
 	"go_code_challenge/db"
@@ -25,8 +26,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	initStorage(db)
+
 	server := api.NewAPIServer(":8080", db)
 	if err := server.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func initStorage(db *sql.DB) {
+	err := db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Connected to the database successfully")
 }
