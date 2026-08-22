@@ -25,7 +25,8 @@ func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1/go_code_challenge").Subrouter()
 
-	deviceController := device.NewController()
+	deviceStore := device.NewStore(s.db)
+	deviceController := device.NewController(deviceStore)
 	deviceController.RegisterRoutes(subrouter)
 
 	log.Println("Starting on endppoint: ", s.addr)
