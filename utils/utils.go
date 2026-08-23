@@ -33,18 +33,3 @@ func CheckState(state string) (res bool) {
 	}
 	return false
 }
-
-func ParseDeviceState(state string) (DeviceState, error) {
-
-	switch state {
-	case "available":
-		return Active, nil
-	case "in-use":
-		return In_Use, nil
-	case "inactive":
-		return Inactive, nil
-	default:
-		return 0, fmt.Errorf("Invaldid state provided")
-	}
-
-}

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"go_code_challenge/types"
+	"log"
 	"strings"
 	"time"
 )
@@ -23,12 +24,15 @@ func (s *Store) GetDevices() ([]*types.Device, error) {
 		return nil, err
 	}
 
+	log.Println("Select executed correctly")
+
 	devices := make([]*types.Device, 0)
 	for rows.Next() {
 		d, err := scanRowIntoDevice(rows)
 		if err != nil {
 			return nil, err
 		}
+		log.Println("Current row: ", d)
 		devices = append(devices, d)
 	}
 
@@ -41,6 +45,8 @@ func (s *Store) GetDeviceById(id int) (*types.Device, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Select executed correctly")
 
 	d := new(types.Device)
 	for rows.Next() {
@@ -63,6 +69,8 @@ func (s *Store) GetDevicesByBrand(brand string) ([]*types.Device, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Select executed correctly")
 
 	devices := make([]*types.Device, 0)
 	for rows.Next() {
@@ -88,6 +96,8 @@ func (s *Store) GetDevicesByState(state string) ([]*types.Device, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Select executed correctly")
 
 	devices := make([]*types.Device, 0)
 	for rows.Next() {
