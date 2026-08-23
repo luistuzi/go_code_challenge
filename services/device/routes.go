@@ -21,9 +21,9 @@ func NewController(store types.DeviceStore) *Controller {
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/getDevices", c.GetDevicesController).Methods("GET")
-	router.HandleFunc("/getDeviceByiD/{id}", c.GetDeviceByIdController).Methods("GET")
-	router.HandleFunc("/getDeviceByBrand/{brand}", c.GetDevicesByBrandController).Methods("GET")
-	router.HandleFunc("/getDeviceByState/{state}", c.GetDevicesByStateController).Methods("GET")
+	router.HandleFunc("/getDeviceById/{id}", c.GetDeviceByIdController).Methods("GET")
+	router.HandleFunc("/getDevicesByBrand/{brand}", c.GetDevicesByBrandController).Methods("GET")
+	router.HandleFunc("/getDevicesByState/{state}", c.GetDevicesByStateController).Methods("GET")
 	router.HandleFunc("/createDevice", c.CreateDeviceController).Methods("POST")
 	router.HandleFunc("/updateDevice", c.UpdateDeviceController).Methods("PATCH")
 	router.HandleFunc("/deleteDevice/{id}", c.DeleteDeviceController).Methods("DELETE")
@@ -54,7 +54,7 @@ func (c *Controller) GetDeviceByIdController(w http.ResponseWriter, r *http.Requ
 
 	id, err := strconv.Atoi(str)
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -98,19 +98,13 @@ func (c *Controller) GetDevicesByStateController(w http.ResponseWriter, r *http.
 		return
 	}
 
-	stateValue, err := utils.ParseDeviceState(str)
+	devices, err := c.store.GetDevicesByState(str)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	devices, err := c.store.GetDevicesByState(stateValue)
-	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	utils.WriteJson(w, http.StatusAccepted, devices)
+	utils.WriteJson(w, http.StatusOK, devices)
 
 }
 
@@ -152,7 +146,13 @@ func (c *Controller) UpdateDeviceController(w http.ResponseWriter, r *http.Reque
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("Invalid update payload request: %v", errors))
 	}
 
-	err := c.store.UpdateDevice(device)
+	deviceValid, err := c.store.GetDeviceById(device.Id)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = c.store.UpdateDevice(device, utils.CheckState(deviceValid.State))
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
 		return
@@ -173,7 +173,18 @@ func (c *Controller) DeleteDeviceController(w http.ResponseWriter, r *http.Reque
 
 	id, err := strconv.Atoi(str)
 	if err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	device, err := c.store.GetDeviceById(id)
+	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if utils.CheckState(device.State) {
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("Cannot delete active devices"))
 		return
 	}
 

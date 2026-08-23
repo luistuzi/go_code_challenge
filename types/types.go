@@ -1,7 +1,6 @@
 package types
 
 import (
-	"go_code_challenge/utils"
 	"time"
 )
 
@@ -9,28 +8,22 @@ type Device struct {
 	Id           int       `json:"id"`
 	Name         string    `json:"name"`
 	Brand        string    `json:"brand"`
-	State        int       `json:"state"`
+	State        string    `json:"state"`
 	CreationTime time.Time `json:"creation_time"`
 }
 
 type CreateDevicePayload struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Brand string `json:"brand"`
-	State int    `json:"state"`
+	Id    int    `json:"id" validate:"required"`
+	Name  string `json:"name" validate:"required"`
+	Brand string `json:"brand" validate:"required"`
+	State string `json:"state" validate:"required"`
 }
 
 type UpdateDevicePayload struct {
-	Id    int     `json:"id"`
+	Id    int     `json:"id" validate:"required"`
 	Name  *string `json:"name"`
 	Brand *string `json:"brand"`
-	State *int    `json:"state"`
-}
-
-type DeleteDevicePayload struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Brand string `json:"brand"`
+	State *string `json:"state"`
 }
 
 type DeviceStore interface {
@@ -38,7 +31,7 @@ type DeviceStore interface {
 	GetDevices() ([]*Device, error)
 	GetDeviceById(id int) (*Device, error)
 	GetDevicesByBrand(brand string) ([]*Device, error)
-	GetDevicesByState(state utils.DeviceState) ([]*Device, error)
-	UpdateDevice(device UpdateDevicePayload) error
+	GetDevicesByState(state string) ([]*Device, error)
+	UpdateDevice(device UpdateDevicePayload, checker bool) error
 	DeleteDevice(id int) error
 }

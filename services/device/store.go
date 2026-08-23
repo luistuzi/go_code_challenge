@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"go_code_challenge/types"
-	"go_code_challenge/utils"
 	"strings"
 	"time"
 )
@@ -82,9 +81,9 @@ func (s *Store) GetDevicesByBrand(brand string) ([]*types.Device, error) {
 	return devices, nil
 }
 
-func (s *Store) GetDevicesByState(state utils.DeviceState) ([]*types.Device, error) {
+func (s *Store) GetDevicesByState(state string) ([]*types.Device, error) {
 
-	rows, err := s.db.Query("SELECT * FROM DEVICE WHERE STATE = ? ", int(state))
+	rows, err := s.db.Query("SELECT * FROM DEVICE WHERE STATE = ? ", state)
 
 	if err != nil {
 		return nil, err
@@ -108,7 +107,7 @@ func (s *Store) GetDevicesByState(state utils.DeviceState) ([]*types.Device, err
 }
 
 func (s *Store) CreateDevice(device types.CreateDevicePayload) error {
-	_, err := s.db.Exec("INSERT INTO DEVICE (ID, NAME, BRAND, STATE, CREATIONTIME) VALUES (?, ?, ?, ?)", device.Id, device.Name, device.Brand, device.State, time.Now())
+	_, err := s.db.Exec("INSERT INTO DEVICE (ID, NAME, BRAND, STATE, CREATIONTIME) VALUES (?, ?, ?, ?, ?)", device.Id, device.Name, device.Brand, device.State, time.Now())
 	if err != nil {
 		return err
 	}
@@ -116,7 +115,7 @@ func (s *Store) CreateDevice(device types.CreateDevicePayload) error {
 	return nil
 }
 
-func (s *Store) UpdateDevice(device types.UpdateDevicePayload) error {
+func (s *Store) UpdateDevice(device types.UpdateDevicePayload, checker bool) error {
 
 	query := "UPDATE DEVICE SET "
 
@@ -124,11 +123,17 @@ func (s *Store) UpdateDevice(device types.UpdateDevicePayload) error {
 	fields := []string{}
 
 	if device.Name != nil {
+		if checker {
+			return fmt.Errorf("Cannot update device name while active state")
+		}
 		fields = append(fields, "NAME = ?")
 		args = append(args, device.Name)
 	}
 
 	if device.Brand != nil {
+		if checker {
+			return fmt.Errorf("Cannot update device brand while active state")
+		}
 		fields = append(fields, "BRAND = ?")
 		args = append(args, device.Brand)
 	}
@@ -143,10 +148,10 @@ func (s *Store) UpdateDevice(device types.UpdateDevicePayload) error {
 	}
 
 	query += strings.Join(fields, ", ")
-	query += "WHERE ID = ?"
+	query += " WHERE ID = ? "
 	args = append(args, device.Id)
 
-	_, err := s.db.Exec(query, args)
+	_, err := s.db.Exec(query, args...)
 
 	if err != nil {
 		return err
@@ -156,7 +161,8 @@ func (s *Store) UpdateDevice(device types.UpdateDevicePayload) error {
 }
 
 func (s *Store) DeleteDevice(id int) error {
-	_, err := s.db.Exec("DELETE FROM DEVICE WHERE ID = ", id)
+
+	_, err := s.db.Exec("DELETE FROM DEVICE WHERE ID = ?", id)
 	if err != nil {
 		return err
 	}

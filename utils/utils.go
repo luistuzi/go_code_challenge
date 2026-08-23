@@ -27,6 +27,13 @@ func WriteError(w http.ResponseWriter, status int, err error) {
 	WriteJson(w, status, map[string]string{"error": err.Error()})
 }
 
+func CheckState(state string) (res bool) {
+	if state == "active" {
+		return true
+	}
+	return false
+}
+
 func ParseDeviceState(state string) (DeviceState, error) {
 
 	switch state {
