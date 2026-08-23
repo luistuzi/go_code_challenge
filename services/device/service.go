@@ -4,27 +4,29 @@ import (
 	"database/sql"
 	"fmt"
 	"go_code_challenge/types"
+	"go_code_challenge/utils"
 	"log"
 	"strings"
 	"time"
 )
 
-type Store struct {
+type Service struct {
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{db: db}
+func NewService(db *sql.DB) *Service {
+	return &Service{db: db}
 }
 
-func (s *Store) GetDevices() ([]*types.Device, error) {
+func (s *Service) GetDevices() ([]*types.Device, error) {
+
 	rows, err := s.db.Query("SELECT * FROM DEVICE")
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("Select executed correctly")
+	log.Println(utils.SelectExecuted)
 
 	devices := make([]*types.Device, 0)
 	for rows.Next() {
@@ -37,16 +39,18 @@ func (s *Store) GetDevices() ([]*types.Device, error) {
 	}
 
 	return devices, nil
+
 }
 
-func (s *Store) GetDeviceById(id int) (*types.Device, error) {
+func (s *Service) GetDeviceById(id int) (*types.Device, error) {
+
 	rows, err := s.db.Query("SELECT * FROM DEVICE WHERE ID = ? ", id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("Select executed correctly")
+	log.Println(utils.SelectExecuted)
 
 	d := new(types.Device)
 	for rows.Next() {
@@ -61,16 +65,18 @@ func (s *Store) GetDeviceById(id int) (*types.Device, error) {
 	}
 
 	return d, nil
+
 }
 
-func (s *Store) GetDevicesByBrand(brand string) ([]*types.Device, error) {
+func (s *Service) GetDevicesByBrand(brand string) ([]*types.Device, error) {
+
 	rows, err := s.db.Query("SELECT * FROM DEVICE WHERE BRAND = ? ", brand)
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("Select executed correctly")
+	log.Println(utils.SelectExecuted)
 
 	devices := make([]*types.Device, 0)
 	for rows.Next() {
@@ -87,9 +93,10 @@ func (s *Store) GetDevicesByBrand(brand string) ([]*types.Device, error) {
 	}
 
 	return devices, nil
+
 }
 
-func (s *Store) GetDevicesByState(state string) ([]*types.Device, error) {
+func (s *Service) GetDevicesByState(state string) ([]*types.Device, error) {
 
 	rows, err := s.db.Query("SELECT * FROM DEVICE WHERE STATE = ? ", state)
 
@@ -97,7 +104,7 @@ func (s *Store) GetDevicesByState(state string) ([]*types.Device, error) {
 		return nil, err
 	}
 
-	log.Println("Select executed correctly")
+	log.Println(utils.SelectExecuted)
 
 	devices := make([]*types.Device, 0)
 	for rows.Next() {
@@ -114,18 +121,21 @@ func (s *Store) GetDevicesByState(state string) ([]*types.Device, error) {
 	}
 
 	return devices, nil
+
 }
 
-func (s *Store) CreateDevice(device types.CreateDevicePayload) error {
+func (s *Service) CreateDevice(device types.CreateDevicePayload) error {
+
 	_, err := s.db.Exec("INSERT INTO DEVICE (ID, NAME, BRAND, STATE, CREATIONTIME) VALUES (?, ?, ?, ?, ?)", device.Id, device.Name, device.Brand, device.State, time.Now())
 	if err != nil {
 		return err
 	}
 
 	return nil
+
 }
 
-func (s *Store) UpdateDevice(device types.UpdateDevicePayload, checker bool) error {
+func (s *Service) UpdateDevice(device types.UpdateDevicePayload, checker bool) error {
 
 	query := "UPDATE DEVICE SET "
 
@@ -134,7 +144,7 @@ func (s *Store) UpdateDevice(device types.UpdateDevicePayload, checker bool) err
 
 	if device.Name != nil {
 		if checker {
-			return fmt.Errorf("Cannot update device name while active state")
+			return fmt.Errorf("Cannot update device name while in-use state")
 		}
 		fields = append(fields, "NAME = ?")
 		args = append(args, device.Name)
@@ -142,7 +152,7 @@ func (s *Store) UpdateDevice(device types.UpdateDevicePayload, checker bool) err
 
 	if device.Brand != nil {
 		if checker {
-			return fmt.Errorf("Cannot update device brand while active state")
+			return fmt.Errorf("Cannot update device brand while in-use state")
 		}
 		fields = append(fields, "BRAND = ?")
 		args = append(args, device.Brand)
@@ -168,9 +178,10 @@ func (s *Store) UpdateDevice(device types.UpdateDevicePayload, checker bool) err
 	}
 
 	return nil
+
 }
 
-func (s *Store) DeleteDevice(id int) error {
+func (s *Service) DeleteDevice(id int) error {
 
 	_, err := s.db.Exec("DELETE FROM DEVICE WHERE ID = ?", id)
 	if err != nil {
@@ -178,9 +189,11 @@ func (s *Store) DeleteDevice(id int) error {
 	}
 
 	return nil
+
 }
 
 func scanRowIntoDevice(rows *sql.Rows) (*types.Device, error) {
+
 	device := new(types.Device)
 	err := rows.Scan(
 		&device.Id,

@@ -1,9 +1,6 @@
 package utils
 
-type DeviceState int
-
 const (
-	Active   DeviceState = 1
-	In_Use   DeviceState = 2
-	Inactive DeviceState = 3
+	UnexpectedError string = "Not expected error occured: %v"
+	SelectExecuted  string = "Select executed correctly"
 )

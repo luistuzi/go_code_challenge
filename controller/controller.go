@@ -1,4 +1,4 @@
-package device
+package controller
 
 import (
 	"fmt"
@@ -10,14 +10,17 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+
+	_ "go_code_challenge/docs"
 )
 
 type Controller struct {
-	store types.DeviceStore
+	service types.DeviceService
 }
 
-func NewController(store types.DeviceStore) *Controller {
-	return &Controller{store: store}
+func NewController(service types.DeviceService) *Controller {
+	return &Controller{service: service}
 }
 
 func (c *Controller) RegisterRoutes(router *mux.Router) {
@@ -28,18 +31,30 @@ func (c *Controller) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/createDevice", c.CreateDeviceController).Methods("POST")
 	router.HandleFunc("/updateDevice", c.UpdateDeviceController).Methods("PATCH")
 	router.HandleFunc("/deleteDevice/{id}", c.DeleteDeviceController).Methods("DELETE")
+
+	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler())
 }
 
+// GetDevices search for all devices
+//
+// @Summary Search for all devices
+// @Description Return a list of all devices
+// @Tags Devices
+// @Produce json
+// @Success 200 {object} types.Device
+// @Failure 400
+// @Failure 500
+// @Router /getDevices [get]
 func (c *Controller) GetDevicesController(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting get devices controller")
 
-	devices, err := c.store.GetDevices()
+	devices, err := c.service.GetDevices()
 
 	log.Println("Devices returned: ", devices)
 
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
@@ -47,6 +62,17 @@ func (c *Controller) GetDevicesController(w http.ResponseWriter, r *http.Request
 
 }
 
+// GetDeviceById search for a individual device
+//
+// @Summary Search for a specific device
+// @Description Return a device by its id
+// @Tags Devices
+// @Produce json
+// @Param id path int true "device ID"
+// @Success 200 {object} types.Device
+// @Failure 400
+// @Failure 500
+// @Router /getDeviceById/{Id} [get]
 func (c *Controller) GetDeviceByIdController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting get device by id controller")
@@ -66,10 +92,10 @@ func (c *Controller) GetDeviceByIdController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	device, err := c.store.GetDeviceById(id)
+	device, err := c.service.GetDeviceById(id)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
@@ -79,6 +105,17 @@ func (c *Controller) GetDeviceByIdController(w http.ResponseWriter, r *http.Requ
 
 }
 
+// GetDevicesByBrand search for all devices with the specific brand
+//
+// @Summary Search for all devices with the specific brand
+// @Description Return a list of all devices with the specific brand
+// @Tags Devices
+// @Produce json
+// @Param brand path string true "device brand"
+// @Success 200 {object} types.Device
+// @Failure 400
+// @Failure 500
+// @Router /getDevicesByBrand/{brand} [get]
 func (c *Controller) GetDevicesByBrandController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting get devices by brand controller")
@@ -91,10 +128,10 @@ func (c *Controller) GetDevicesByBrandController(w http.ResponseWriter, r *http.
 		return
 	}
 
-	devices, err := c.store.GetDevicesByBrand(str)
+	devices, err := c.service.GetDevicesByBrand(str)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
@@ -104,6 +141,17 @@ func (c *Controller) GetDevicesByBrandController(w http.ResponseWriter, r *http.
 
 }
 
+// GetDevicesByState search for all devices with the specific state
+//
+// @Summary Search for all devices with the specific state
+// @Description Return a list of all devices with the specific state
+// @Tags Devices
+// @Produce json
+// @Param state path string true "device state"
+// @Success 200 {object} types.Device
+// @Failure 400
+// @Failure 500
+// @Router /getDevicesByState/{state} [get]
 func (c *Controller) GetDevicesByStateController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting get devices by state controller")
@@ -116,10 +164,10 @@ func (c *Controller) GetDevicesByStateController(w http.ResponseWriter, r *http.
 		return
 	}
 
-	devices, err := c.store.GetDevicesByState(str)
+	devices, err := c.service.GetDevicesByState(str)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
@@ -129,6 +177,19 @@ func (c *Controller) GetDevicesByStateController(w http.ResponseWriter, r *http.
 
 }
 
+// CreateDevice insert a new device.
+//
+// @Summary Create a new device
+// @Description Create a new device
+// @Tags Devices
+// @Accept json
+// @Produce json
+// @Param device body types.CreateDevicePayload true "Device Id"
+// @Success 201 {object} types.Device
+// @Failure 400
+// @Failure 409
+// @Failure 500
+// @Router /createDevice [post]
 func (c *Controller) CreateDeviceController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting create device controller")
@@ -151,10 +212,10 @@ func (c *Controller) CreateDeviceController(w http.ResponseWriter, r *http.Reque
 
 	log.Println("Json Validated")
 
-	err := c.store.CreateDevice(device)
+	err := c.service.CreateDevice(device)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
@@ -164,6 +225,18 @@ func (c *Controller) CreateDeviceController(w http.ResponseWriter, r *http.Reque
 
 }
 
+// UpdateDevice Update parcially the device
+//
+// @Summary update the device
+// @Description Udate only provided fields and with no "in-use" state
+// @Tags Devices
+// @Accept json
+// @Produce json
+// @Param device body types.UpdateDevicePayload true "Device Id"
+// @Success 204
+// @Failure 400
+// @Failure 500
+// @Router /updateDevice [patch]
 func (c *Controller) UpdateDeviceController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting update device controller")
@@ -182,17 +255,17 @@ func (c *Controller) UpdateDeviceController(w http.ResponseWriter, r *http.Reque
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("Invalid update payload request: %v", errors))
 	}
 
-	deviceValid, err := c.store.GetDeviceById(device.Id)
+	deviceValid, err := c.service.GetDeviceById(device.Id)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
-	err = c.store.UpdateDevice(device, utils.CheckState(deviceValid.State))
+	err = c.service.UpdateDevice(device, utils.CheckState(deviceValid.State))
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 	utils.WriteJson(w, http.StatusOK, device)
@@ -201,6 +274,17 @@ func (c *Controller) UpdateDeviceController(w http.ResponseWriter, r *http.Reque
 
 }
 
+// DeleteDevice Delete the device
+//
+// @Summary delete the device
+// @Description Delete the provided device
+// @Tags Devices
+// @Produce json
+// @Param id path int true "device ID"
+// @Success 200
+// @Failure 400
+// @Failure 404
+// @Router /deleteDevice/{id} [patch]
 func (c *Controller) DeleteDeviceController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting delete device controller")
@@ -220,10 +304,10 @@ func (c *Controller) DeleteDeviceController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	device, err := c.store.GetDeviceById(id)
+	device, err := c.service.GetDeviceById(id)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 
@@ -232,10 +316,10 @@ func (c *Controller) DeleteDeviceController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	err = c.store.DeleteDevice(id)
+	err = c.service.DeleteDevice(id)
 	if err != nil {
 		log.Println("Error occured: ", err)
-		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("Not expected error occured: %v", err))
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf(utils.UnexpectedError, err))
 		return
 	}
 

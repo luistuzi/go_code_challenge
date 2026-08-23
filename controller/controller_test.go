@@ -1,4 +1,4 @@
-package device
+package controller
 
 import (
 	"bytes"
@@ -14,8 +14,8 @@ import (
 
 func TestDeviceControllers(t *testing.T) {
 
-	deviceStore := &mockDeviceStore{}
-	controller := NewController(deviceStore)
+	deviceService := &mockDeviceService{}
+	controller := NewController(deviceService)
 
 	t.Run("should get all devices", func(t *testing.T) {
 
@@ -319,32 +319,32 @@ func TestDeviceControllers(t *testing.T) {
 
 }
 
-type mockDeviceStore struct{}
+type mockDeviceService struct{}
 
-func (m *mockDeviceStore) GetDevices() ([]*types.Device, error) {
+func (m *mockDeviceService) GetDevices() ([]*types.Device, error) {
 	return []*types.Device{}, nil
 }
 
-func (m *mockDeviceStore) GetDeviceById(id int) (*types.Device, error) {
+func (m *mockDeviceService) GetDeviceById(id int) (*types.Device, error) {
 	return &types.Device{}, nil
 }
 
-func (m *mockDeviceStore) GetDevicesByBrand(brand string) ([]*types.Device, error) {
+func (m *mockDeviceService) GetDevicesByBrand(brand string) ([]*types.Device, error) {
 	return []*types.Device{}, nil
 }
 
-func (m *mockDeviceStore) GetDevicesByState(state string) ([]*types.Device, error) {
+func (m *mockDeviceService) GetDevicesByState(state string) ([]*types.Device, error) {
 	return []*types.Device{}, nil
 }
 
-func (m *mockDeviceStore) CreateDevice(d types.CreateDevicePayload) error {
+func (m *mockDeviceService) CreateDevice(d types.CreateDevicePayload) error {
 	return nil
 }
 
-func (m *mockDeviceStore) UpdateDevice(d types.UpdateDevicePayload, checker bool) error {
+func (m *mockDeviceService) UpdateDevice(d types.UpdateDevicePayload, checker bool) error {
 	return nil
 }
 
-func (m *mockDeviceStore) DeleteDevice(id int) error {
+func (m *mockDeviceService) DeleteDevice(id int) error {
 	return nil
 }

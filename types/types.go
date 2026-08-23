@@ -26,7 +26,7 @@ type UpdateDevicePayload struct {
 	State *string `json:"state"`
 }
 
-type DeviceStore interface {
+type DeviceService interface {
 	CreateDevice(device CreateDevicePayload) error
 	GetDevices() ([]*Device, error)
 	GetDeviceById(id int) (*Device, error)

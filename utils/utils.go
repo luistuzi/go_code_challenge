@@ -28,7 +28,7 @@ func WriteError(w http.ResponseWriter, status int, err error) {
 }
 
 func CheckState(state string) (res bool) {
-	if state == "active" {
+	if state == "in-use" {
 		return true
 	}
 	return false

@@ -4,15 +4,20 @@ import (
 	"database/sql"
 	"go_code_challenge/cmd/api"
 	"go_code_challenge/config"
-	"go_code_challenge/db"
+	"go_code_challenge/repository"
 	"log"
 
 	"github.com/go-sql-driver/mysql"
 )
 
+// @title Device API
+// @version 1.0
+// @description API used for device management in this code challenge
+// @host localhost:8080
+// @BasePath /api/v1/device
 func main() {
 
-	db, err := db.NewSQLStorage(mysql.Config{
+	db, err := repository.NewSQLStorage(mysql.Config{
 		User:                 config.Envs.DBUser,
 		Passwd:               config.Envs.DBPassword,
 		Addr:                 config.Envs.DBAddress,
