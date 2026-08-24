@@ -59,7 +59,7 @@ const docTemplate = `{
             }
         },
         "/deleteDevice/{id}": {
-            "patch": {
+            "delete": {
                 "description": "Delete the provided device",
                 "produces": [
                     "application/json"
@@ -71,7 +71,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "device ID",
+                        "description": "device Id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -90,7 +90,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/getDeviceById/{Id}": {
+        "/getDeviceById/{id}": {
             "get": {
                 "description": "Return a device by its id",
                 "produces": [
@@ -103,7 +103,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "device ID",
+                        "description": "device id",
                         "name": "id",
                         "in": "path",
                         "required": true

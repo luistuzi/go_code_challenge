@@ -5,15 +5,18 @@ Repository created in order to store the challenge itself and it's changes
 
 All configurations are being setted on Dockerfile, if any need to be changed, don't forget to change and save the file
 
-Endpois are being documented on swagger
+Endpoints are being documented on swagger
+
+# To update the swagger(after installing it)
+swag init -g cmd/main.go
 
 execute the comands:
 
 # To perform the build
 docker compose build --no-cache
 
-# To run the whole image containing the app and the mysql database for testing
-docker compose up -d
+# To run the whole image containing the app and the mysql database for testing(this may need to be executed 2 times)
+docker compose up --force-recreate
 
 # To check if both images are running
 docker compose ps

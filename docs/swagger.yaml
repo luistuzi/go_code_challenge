@@ -78,10 +78,10 @@ paths:
       tags:
       - Devices
   /deleteDevice/{id}:
-    patch:
+    delete:
       description: Delete the provided device
       parameters:
-      - description: device ID
+      - description: device Id
         in: path
         name: id
         required: true
@@ -98,11 +98,11 @@ paths:
       summary: delete the device
       tags:
       - Devices
-  /getDeviceById/{Id}:
+  /getDeviceById/{id}:
     get:
       description: Return a device by its id
       parameters:
-      - description: device ID
+      - description: device id
         in: path
         name: id
         required: true

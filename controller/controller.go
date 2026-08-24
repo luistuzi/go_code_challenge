@@ -68,11 +68,11 @@ func (c *Controller) GetDevicesController(w http.ResponseWriter, r *http.Request
 // @Description Return a device by its id
 // @Tags Devices
 // @Produce json
-// @Param id path int true "device ID"
+// @Param id path int true "device id"
 // @Success 200 {object} types.Device
 // @Failure 400
 // @Failure 500
-// @Router /getDeviceById/{Id} [get]
+// @Router /getDeviceById/{id} [get]
 func (c *Controller) GetDeviceByIdController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting get device by id controller")
@@ -280,7 +280,7 @@ func (c *Controller) UpdateDeviceController(w http.ResponseWriter, r *http.Reque
 // @Description Delete the provided device
 // @Tags Devices
 // @Produce json
-// @Param id path int true "device ID"
+// @Param id path int true "device Id"
 // @Success 200
 // @Failure 400
 // @Failure 404
@@ -312,7 +312,7 @@ func (c *Controller) DeleteDeviceController(w http.ResponseWriter, r *http.Reque
 	}
 
 	if utils.CheckState(device.State) {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("Cannot delete active devices"))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("Cannot delete in-use devices"))
 		return
 	}
 
