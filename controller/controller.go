@@ -284,7 +284,7 @@ func (c *Controller) UpdateDeviceController(w http.ResponseWriter, r *http.Reque
 // @Success 200
 // @Failure 400
 // @Failure 404
-// @Router /deleteDevice/{id} [patch]
+// @Router /deleteDevice/{id} [delete]
 func (c *Controller) DeleteDeviceController(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Starting delete device controller")

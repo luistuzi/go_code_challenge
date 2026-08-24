@@ -5,6 +5,7 @@ go 1.27.0
 require (
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/go-sql-driver/mysql v1.10.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.5.1
 	github.com/swaggo/http-swagger/v2 v2.0.2

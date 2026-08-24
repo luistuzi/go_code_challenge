@@ -1,0 +1,43 @@
+services:
+
+  api:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: device-api
+    ports:
+      - "8080:8080"
+    environment:
+      PUBLIC_HOST: http://localhost
+      PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: device_db
+      SERVER_PORT: 8080
+      JWT_SECRET: no-real-secret
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:latest
+    container_name: devicedb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: device_db
+    ports:
+      - "3333:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 60s
+      retries: 10
+
+volumes:
+  mysql_data:
